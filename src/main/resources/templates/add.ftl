@@ -10,7 +10,8 @@
 <div>
     <form action="add" method="post">
         <input type="text" name="name" placeholder="Введите имя работника" />
-        <input type="text" name="email" placeholder="Введите Email">
+        <input type="text" name="email" placeholder="Введите Email"/>
+        <input type="file" name="file"/>
         <button type="submit">Добавить</button>
         <input type="hidden" name="_csrf" value="${_csrf.token}" />
     </form>
@@ -32,6 +33,10 @@ ${worker.id}
 ${worker.name}
 ${worker.email}
 ${worker.usrName}
+    <div>
+        <#if worker.filename??>
+            <img src = "/img/${worker.filename}" />
+        </#if>
 </li>
 </ul>
 </div>
