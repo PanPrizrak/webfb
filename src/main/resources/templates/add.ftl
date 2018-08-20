@@ -8,7 +8,7 @@
      <span><a href="/user">User list</a></span>
 </div>
 <div>
-    <form action="add" method="post">
+    <form action="add" method="post" enctype="multipart/form-data">
         <input type="text" name="name" placeholder="Введите имя работника" />
         <input type="text" name="email" placeholder="Введите Email"/>
         <input type="file" name="file"/>
@@ -37,6 +37,12 @@ ${worker.usrName}
         <#if worker.filename??>
             <img src = "/img/${worker.filename}" />
         </#if>
+    </div>
+    <form action="delete" method="post" >
+            <input type="hidden" name="idworker" value=${worker.id} />
+            <button type="submit">Удалить</button>
+            <input type="hidden" name="_csrf" value="${_csrf.token}" />
+    </form>
 </li>
 </ul>
 </div>

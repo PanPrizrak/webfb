@@ -6,7 +6,7 @@ import javax.persistence.*;
 public class Worker {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private Integer id;
+    private Long id;
 
     private String name;
 
@@ -16,13 +16,16 @@ public class Worker {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String filename;
+
     public Worker() {
     }
 
-    public Worker(String name, String email, User user) {
+    public Worker(String name, String email, User user, String filename) {
         this.name = name;
         this.email = email;
         this.user = user;
+        this.filename = filename;
     }
 
     //grovy
@@ -30,11 +33,11 @@ public class Worker {
         return user != null ? user.getUsername() : "<none>";
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -60,6 +63,14 @@ public class Worker {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     @Override
