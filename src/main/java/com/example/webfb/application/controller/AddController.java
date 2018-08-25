@@ -8,16 +8,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.*;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+
 
 @Controller
 public class AddController {
@@ -29,19 +31,19 @@ public class AddController {
     private String uploadPath;
 
     @GetMapping("/add")
-    public String add(@RequestParam(required=false, defaultValue = "") String filterName, Model model) {//@RequestParam(name="name", required=false, defaultValue="World") String name, Model model
+    public String add(@RequestParam(required = false, defaultValue = "") String filterName, Model model) {//@RequestParam(name="name", required=false, defaultValue="World") String name, Model model
         Iterable<Worker> workers = workerRepository.findAll();
 
         Iterable<Worker> bufWorkers;
         String error = " ";
         // JOptionPane.showMessageDialog(null, filterName);
 
-        if (filterName != null && !filterName.isEmpty() ) {
+        if (filterName != null && !filterName.isEmpty()) {
             bufWorkers = workerRepository.findByName(filterName);
-            if(bufWorkers.iterator().hasNext()){
+            if (bufWorkers.iterator().hasNext()) {
                 workers = bufWorkers;
                 error = " ";
-            }else{
+            } else {
                 workers = workerRepository.findAll();
                 error = "Данное имя не найдено";
             }
@@ -52,68 +54,71 @@ public class AddController {
         }
 
         model.addAttribute("workers", workers);
-        model.addAttribute("error",error);
-        model.addAttribute("filterName",filterName);
+        model.addAttribute("error", error);
+        model.addAttribute("filterName", filterName);
         return "add";
     }
 
     @PostMapping("/add")
     public String add(
+            @RequestParam(required = false, defaultValue = "") String filterName,
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal User user,
-            @RequestParam String name,
-            @RequestParam String email,
-            Map<String, Object> model,
-            @RequestParam(required=false, defaultValue = "") String filterName)
-            throws IOException {
+            @Valid Worker worker,
+            BindingResult bindingResult,
+            Model model
+    ) throws IOException {
 
+        worker.setUser(user);
 
-        String resultFilename = null;
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorsMap = ControllerUtils.getErrors(bindingResult);
 
-        if (file != null && !file.getOriginalFilename().isEmpty()) {
-            File uploadDir = new File(uploadPath);
+            model.mergeAttributes(errorsMap);
+            model.addAttribute("worker", worker);
 
-            if( !uploadDir.isDirectory()){
-                if(!uploadDir.mkdirs()) {
-                    // JOptionPane.showMessageDialog(null,"OOOOO");
-                    System.out.println("!!!!!!!!!!!!!!!!" + uploadDir.getAbsolutePath() + "!!!!!!!!!!!!!!!!!" + uploadDir.isDirectory());
+        } else {
+
+            String resultFilename = null;
+
+            if (file != null && !file.getOriginalFilename().isEmpty()) {
+                File uploadDir = new File(uploadPath);
+
+                if (!uploadDir.isDirectory()) {
+                    if (!uploadDir.mkdirs()) {
+                    }
                 }
+                String uuidfile = UUID.randomUUID().toString();
+                resultFilename = uuidfile + "." + file.getOriginalFilename();
 
+                file.transferTo(new File(uploadPath + "/" + resultFilename));
+
+                worker.setFilename(resultFilename);
             }
-            System.out.println("!!!!!!!!!!!!!!!!" + uploadDir.getAbsolutePath() + "!!!!!!!!!!!!!!!!!" + uploadDir.isDirectory());
-            String uuidfile = UUID.randomUUID().toString();
-            resultFilename  = uuidfile + "." + file.getOriginalFilename();
+                workerRepository.save(worker);
+            }
 
+            Iterable<Worker> workers = workerRepository.findAll();
 
-            file.transferTo(new File(uploadPath + "/" + resultFilename));
+            model.addAttribute("workers", workers);
+            model.addAttribute("error", " ");
+            model.addAttribute("filterName", filterName);
 
+            return "add";
 
-        }
-
-        Worker worker = new Worker(name, email, user, resultFilename);
-
-
-        workerRepository.save(worker);
-
-        Iterable<Worker> workers = workerRepository.findAll();
-
-        model.put("workers", workers);
-        model.put("error"," ");
-        model.put("filterName",filterName);
-
-        return "add";
     }
 
+
     @PostMapping("/delete")
-    public String delete(@RequestParam("idworker") Long idworker,Map<String, Object> model,
-                         @RequestParam(required=false, defaultValue = "") String filterName){
+    public String delete(@RequestParam("idworker") Long idworker, Map<String, Object> model,
+                         @RequestParam(required = false, defaultValue = "") String filterName) {
 
         workerRepository.deleteById(idworker);
         Iterable<Worker> workers = workerRepository.findAll();
 
         model.put("workers", workers);
-        model.put("error"," ");
-        model.put("filterName",filterName);
+        model.put("error", " ");
+        model.put("filterName", filterName);
 
         return "add";
     }

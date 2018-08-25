@@ -1,6 +1,9 @@
 package com.example.webfb.application.entity;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Worker {
@@ -8,8 +11,11 @@ public class Worker {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
 
+    @NotBlank(message="pleas fil name")
+    @Length(max = 255, message = "max long")
     private String name;
 
+    @NotBlank(message="pleas fil email")
     private String email;
 
     @ManyToOne(fetch = FetchType.EAGER)
