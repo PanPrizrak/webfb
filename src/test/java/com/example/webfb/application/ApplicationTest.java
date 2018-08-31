@@ -22,11 +22,11 @@ public class ApplicationTest {
     @Test
     public void homePage() throws Exception {
         // N.B. jsoup can be useful for asserting HTML content
-        mockMvc.perform(get("/index.html"))
-                .andExpect(content().string(containsString("Get your greeting")));
+        mockMvc.perform(get("/"))
+                .andExpect(content().string(containsString("Hi")));
     }
 
-    @Test
+    /*@Test
     public void greeting() throws Exception {
         mockMvc.perform(get("/greeting"))
                 .andExpect(content().string(containsString("Hello, World!")));
@@ -36,6 +36,6 @@ public class ApplicationTest {
     public void greetingWithUser() throws Exception {
         mockMvc.perform(get("/greeting").param("name", "Greg"))
                 .andExpect(content().string(containsString("Hello, Greg!")));
-    }
+    }*/
 
 }

@@ -4,6 +4,7 @@ import com.example.webfb.application.entity.Role;
 import com.example.webfb.application.entity.User;
 import com.example.webfb.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,10 +36,8 @@ public class UserService implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new MessageDigestPasswordEncoder("MD5"); //BCryptPasswordEncoder(8)
-    }
+    @Value("${hostname}")
+    private String hostname;
 
 
     @Override
@@ -75,8 +74,9 @@ public class UserService implements UserDetailsService {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
                     "Hello, %s! \n" +
-                            "Welcome to Sweater. Please, visit next link: http://localhost:8080/activate/%s",
+                            "Welcome to Sweater. Please, visit next link: http://%s:8080/activate/%s",
                     user.getUsername(),
+                    hostname,
                     user.getActivationCode()
             );
 
